@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/public/styles.css" />
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.2/peerjs.min.js.map"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  </head>
+
+  <body>
+    <div class="videos"></div>
+    <div class="mainclone">
+      <div class="main_left">
+        <div class="main_videos">
+          <div id="centerVideoDiv">
+            <div>
+              <video id="localVideo" autoplay playsinline></video>
+            </div>
+          </div>
+          <div id="video-grids"></div>
+        </div>
+        <div class="main_controls">
+          <div class="main_controls_block mobileDiv"></div>
+          <div class="main_controls_block mainCenterDiv">
+            <div class="main_controls_button" onclick="muteUnmute()">
+              <i class="fas fa-microphone" id="mute-icon"></i>
+              <span id="muteText">Mute</span>
+            </div>
+            <div class="main_controls_button" onclick="VideomuteUnmute()">
+              <i class="fas fa-video" id="video-icon"></i>
+              <span id="videoText">Stop Video</span>
+            </div>
+            <div class="main_controls_button mobileDiv" onclick="showchat()">
+              <i class="fas fa-comment-alt"></i>
+              <span>Chat</span>
+            </div>
+            <div class="main_controls_button mobileDiv" onclick="invitebox()">
+              <i class="fas fa-user-plus"></i>
+              <span>Invite</span>
+            </div>
+            <div
+              class="main_controls_button mobileDiv"
+              id="screenShare"
+              onclick="startScreenShare()"
+            >
+              <i class="fas fa-desktop"></i>
+              <span>Share</span>
+            </div>
+            <div class="btnControl mobileDiv1">
+              <div class="btn-group">
+                <div
+                  class="main_controls_button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <i class="fa fa-phone-square" aria-hidden="true"></i>
+                  <span>End Call</span>
+                </div>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onClick="endCall()"
+                  >
+                    Leave Call
+                  </button>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onClick="endCallForAll()"
+                  >
+                    End Meeting for All
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="btnControl mobileDiv1">
+              <div class="btn-group">
+                <div
+                  class="main_controls_button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                  <span>More</span>
+                </div>
+                <div class="dropdown-menu dropdown-menu-right moreIcons">
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onclick="showchat()"
+                  >
+                    <i class="fas fa-comment-alt"></i> Chat
+                  </button>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onclick="invitebox()"
+                  >
+                    <i class="fas fa-user-plus"></i> Invite
+                  </button>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onclick="startScreenShare()"
+                  >
+                    <i class="fas fa-desktop"></i> Share
+                  </button>
+                  <div class="visitNotes"></div>
+                </div>
+              </div>
+            </div>
+            <!--div class="main_controls_button" id="recording" onclick="recordingHandle()">
+                      <i class="fas fa-record-vinyl"></i>
+                      <span id="recordText">Start Recording</span>
+                  </div-->
+          </div>
+          <div class="main_controls_block mobileDiv">
+            <div class="btnControl visitNotes"></div>
+            <div class="main_controls_button btnControl">
+              <div class="btn-group">
+                <button
+                  type="button"
+                  class="btn btn-danger dropdown-toggle"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span class="leave_meeting">End Call</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onClick="endCall()"
+                  >
+                    Leave Call
+                  </button>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    onClick="endCallForAll()"
+                  >
+                    End Meeting for All
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="main_right" id="chat">
+        <div class="main_right_header">
+          <h6>Chat Area</h6>
+        </div>
+        <div class="main__chat_window" id="main__chat_window">
+          <ul class="messages" id="messageadd"></ul>
+        </div>
+        <div>
+          <div class="main__message_container">
+            <input
+              type="text"
+              id="chat_message"
+              onkeydown="sendmessage(this)"
+              placeholder="Type message here.."
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/public/webrtc.js"></script>
+  </body>
+</html>

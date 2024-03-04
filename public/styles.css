@@ -1,0 +1,236 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: "Roboto", sans-serif;
+}
+
+#video-grids {
+  display: flex;
+  flex-direction: column;
+}
+
+a,
+a:hover,
+a:focus,
+a:active {
+  text-decoration: none;
+  color: inherit;
+}
+
+.video-grid {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  max-width: 200px;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  background-color: yellow;
+}
+
+h1 {
+  position: absolute;
+  bottom: 0;
+  left: 40%;
+}
+
+video {
+  display: block;
+  flex: 1;
+  object-fit: cover;
+  border: 5px solid #000;
+  max-width: 600px;
+  border-radius: 25px;
+}
+
+.mainclone {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.main_left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main_right {
+  display: flex;
+  flex: 0.2;
+  flex-direction: column;
+  background-color: #242324;
+}
+
+.main_controls_block {
+  flex-direction: row;
+  display: flex;
+}
+
+.main_controls {
+  display: flex;
+  flex-direction: row;
+  background-color: #1c1e20;
+  color: white;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.main_controls {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  transition: bottom 0.3s ease-in;
+  width: 100%;
+  z-index: 252;
+}
+
+.main_controls_button {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  padding: 3px 10px;
+  min-width: 80px;
+  align-items: center;
+  justify-content: center;
+}
+
+.main_videos {
+  flex-grow: 1;
+  background-color: black;
+  display: flex;
+  /*  justify-content: right; */
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.leave_red {
+  color: white;
+  background-color: red;
+  border-radius: 5%;
+}
+
+.main__message_container {
+  padding: 20px 15px;
+  display: flex;
+}
+
+.main__message_container input {
+  flex-grow: 1;
+  background-color: transparent;
+  color: white;
+  border: none;
+  outline: none;
+}
+
+.main__chat_window {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.main_controls_button:hover {
+  background-color: #686666;
+  border-radius: 25px;
+}
+
+.main_right_header {
+  color: white;
+  text-align: center;
+  font-size: 20px;
+  padding: 10px;
+  border-bottom: 2px solid #3d3d42;
+}
+
+.message {
+  color: white;
+  list-style-type: none;
+  border: 2px solid #3d3d42;
+  margin-bottom: 5px;
+}
+
+.main_right_header h6 {
+  animation: animate 20s linear infinite;
+  background-image: linear-gradient(to right, #f00, #ff0, #0ff, #0f0, #00f);
+  background-size: 1000%;
+}
+
+.redColor {
+  color: red;
+}
+
+.btnControl:hover {
+  background: none;
+}
+
+.btnControl button {
+  border-radius: 20px;
+}
+
+#centerVideoDiv video {
+  max-width: 100%;
+  width: 100% !important;
+}
+
+@keyframes animate {
+  0% {
+    background-position: 0% 100%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .mobileDiv {
+    display: none;
+  }
+
+  .mainCenterDiv {
+    margin: 0 auto;
+  }
+
+  video {
+    max-width: 100%;
+    width: 100% !important;
+  }
+
+  .dropdown-item {
+    padding: 10px 20px !important;
+  }
+
+  #video-grids {
+    display: block;
+  }
+
+  .video-grid {
+    margin-bottom: 20px;
+  }
+
+  .main_right {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+
+  .moreIcons button i {
+    padding: 0 10px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .mobileDiv1 {
+    display: none;
+  }
+}

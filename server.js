@@ -1,17 +1,22 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
 const url = require("url");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
 const app = express();
+const server = http.Server(app);
+const io = require("socket.io")(server);
+
+/*
+const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
   },
 });
+*/
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 

@@ -9,7 +9,7 @@ let myname = "";
 const chat = document.getElementById("chat");
 chat.hidden = true;
 
-const HOST_URL = "ws://localhost:8003";
+const HOST_URL = window.location.host;
 
 var peerConnectionConfig = {
   iceServers: [

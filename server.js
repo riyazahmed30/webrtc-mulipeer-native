@@ -44,28 +44,31 @@ app.get("/join/:rooms", (req, res) => {
 
 io.on("connection", async (socket) => {
   socket.on("join-room", async (roomId, myname) => {
+    const socketId = socket.id;
     socket.join(roomId);
 
     let roomSockets = await io.in(roomId).fetchSockets();
     roomSockets = roomSockets.map((v) => v.id);
-    console.log(roomSockets);
-    io.to(roomId).emit(
-      "user-joined",
-      socket.id,
-      io.engine.clientsCount,
-      roomSockets
-    );
+    io.to(roomId).emit("user-joined", socketId, roomSockets);
 
     socket.on("signal", (toId, message) => {
-      io.to(toId).emit("signal", socket.id, message);
+      io.to(toId).emit("signal", socketId, message);
     });
 
     socket.on("message", function (data) {
-      io.to(roomId).emit("broadcast-message", socket.id, data);
+      io.to(roomId).emit("broadcast-message", socketId, data);
     });
 
     socket.on("disconnect", function () {
-      io.to(roomId).emit("user-left", socket.id);
+      io.to(roomId).emit("user-left", socketId);
+    });
+
+    socket.on("endCallForAll", () => {
+      io.to(roomId).emit("endCallForAll", "");
+    });
+
+    socket.on("messagesend", (message) => {
+      io.to(roomId).emit("createMessage", message);
     });
   });
 });

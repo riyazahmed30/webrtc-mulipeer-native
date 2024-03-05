@@ -40,14 +40,31 @@
   <body>
     <div class="videos"></div>
     <div class="mainclone">
+      <div class="main_right" id="chat">
+        <div class="main_right_header">
+          <h6>Chat Area</h6>
+        </div>
+        <div class="main__chat_window" id="main__chat_window">
+          <ul class="messages" id="messageadd"></ul>
+        </div>
+        <div>
+          <div class="main__message_container">
+            <input
+              type="text"
+              id="chat_message"
+              onkeydown="sendmessage(this)"
+              placeholder="Type message here.."
+            />
+          </div>
+        </div>
+      </div>
       <div class="main_left">
         <div class="main_videos">
-          <div id="centerVideoDiv">
-            <div>
+          <div id="video-grids">
+            <div class="video-grid">
               <video id="localVideo" autoplay playsinline></video>
             </div>
           </div>
-          <div id="video-grids"></div>
         </div>
         <div class="main_controls">
           <div class="main_controls_block mobileDiv"></div>
@@ -181,26 +198,7 @@
           </div>
         </div>
       </div>
-      <div class="main_right" id="chat">
-        <div class="main_right_header">
-          <h6>Chat Area</h6>
-        </div>
-        <div class="main__chat_window" id="main__chat_window">
-          <ul class="messages" id="messageadd"></ul>
-        </div>
-        <div>
-          <div class="main__message_container">
-            <input
-              type="text"
-              id="chat_message"
-              onkeydown="sendmessage(this)"
-              placeholder="Type message here.."
-            />
-          </div>
-        </div>
-      </div>
     </div>
-
     <br />
     <script src="/socket.io/socket.io.js"></script>
     <script src="/public/webrtc.js"></script>

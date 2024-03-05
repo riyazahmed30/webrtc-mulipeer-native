@@ -11,7 +11,6 @@ body {
 
 #video-grids {
   display: flex;
-  flex-direction: column;
 }
 
 a,
@@ -28,7 +27,6 @@ a:active {
   justify-content: center;
   height: 100%;
   width: 100%;
-  max-width: 200px;
   align-items: center;
   flex-wrap: wrap;
   overflow-y: auto;
@@ -83,16 +81,6 @@ video {
   justify-content: space-between;
 }
 
-.main_controls {
-  bottom: 0;
-  left: 0;
-  position: absolute;
-  right: 0;
-  transition: bottom 0.3s ease-in;
-  width: 100%;
-  z-index: 252;
-}
-
 .main_controls_button {
   cursor: pointer;
   display: flex;
@@ -107,8 +95,8 @@ video {
   flex-grow: 1;
   background-color: black;
   display: flex;
-  /*  justify-content: right; */
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
 }
 

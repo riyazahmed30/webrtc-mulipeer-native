@@ -1,9 +1,11 @@
 var localVideo;
-var firstPerson = false;
-var socketCount = 0;
 var socketId;
 var localStream;
 var connections = [];
+let screenStream;
+let screenSharing = false;
+let socket;
+let myname = "";
 const chat = document.getElementById("chat");
 chat.hidden = true;
 
@@ -19,9 +21,7 @@ var peerConnectionConfig = {
   ],
 };
 
-let socket;
 const roomName = window.location.pathname.split("/")[2];
-let myname = "";
 
 let defaultConfigObj = {};
 
@@ -49,6 +49,84 @@ window.onload = () => {
   });
 };
 
+const socketHandler = () => {
+  socket = io(HOST_URL);
+  socket.on("signal", gotMessageFromServer);
+
+  sendPostMessageToParent({ eventType: "userconnect" });
+  socket.emit("join-room", roomName, myname);
+
+  socket.on("connect", function () {
+    socketId = socket.id;
+  });
+
+  socket.on("user-left", function (id) {
+    var video = document.querySelector('[data-socket="' + id + '"]');
+    var parentDiv = video.parentElement;
+    video.parentElement.parentElement.removeChild(parentDiv);
+  });
+
+  socket.on("user-joined", function (id, clients) {
+    clients.forEach(function (socketListId) {
+      if (!connections[socketListId]) {
+        connections[socketListId] = new RTCPeerConnection(peerConnectionConfig);
+        //Wait for their ice candidate
+        connections[socketListId].onicecandidate = function (event) {
+          if (event.candidate != null) {
+            console.log("SENDING ICE");
+            socket.emit(
+              "signal",
+              socketListId,
+              JSON.stringify({ ice: event.candidate })
+            );
+          }
+        };
+
+        //Wait for their video stream
+        connections[socketListId].onaddstream = function (event) {
+          gotRemoteStream(event, socketListId);
+        };
+
+        //Add the local video stream
+        // connections[socketListId].addStream(localStream);
+        localStream.getTracks().forEach((track) => {
+          connections[socketListId].addTrack(track, localStream);
+        });
+      }
+    });
+
+    //Create an offer to connect with your local description
+
+    if (clients.length >= 2) {
+      connections[id].createOffer().then(function (description) {
+        connections[id]
+          .setLocalDescription(description)
+          .then(function () {
+            // console.log(connections);
+            socket.emit(
+              "signal",
+              id,
+              JSON.stringify({ sdp: connections[id].localDescription })
+            );
+          })
+          .catch((e) => console.log(e));
+      });
+    }
+  });
+
+  socket.on("endCallForAll", () => {
+    endCall();
+  });
+
+  socket.on("createMessage", (message) => {
+    var ul = document.getElementById("messageadd");
+    var li = document.createElement("li");
+    li.className = "message";
+    li.appendChild(document.createTextNode(message));
+    ul.appendChild(li);
+  });
+};
+
 function pageReady() {
   localVideo = document.getElementById("localVideo");
 
@@ -64,77 +142,29 @@ function pageReady() {
     navigator.mediaDevices
       .getUserMedia(constraints)
       .then(getUserMediaSuccess)
-      .then(function () {
-        socket = io(HOST_URL);
-        socket.on("signal", gotMessageFromServer);
-
-        socket.emit("join-room", roomName, myname);
-
-        socket.on("connect", function () {
-          socketId = socket.id;
-
-          socket.on("user-left", function (id) {
-            var video = document.querySelector('[data-socket="' + id + '"]');
-            var parentDiv = video.parentElement;
-            video.parentElement.parentElement.removeChild(parentDiv);
-          });
-
-          socket.on("user-joined", function (id, count, clients) {
-            clients.forEach(function (socketListId) {
-              if (!connections[socketListId]) {
-                connections[socketListId] = new RTCPeerConnection(
-                  peerConnectionConfig
-                );
-                //Wait for their ice candidate
-                connections[socketListId].onicecandidate = function () {
-                  if (event.candidate != null) {
-                    console.log("SENDING ICE");
-                    socket.emit(
-                      "signal",
-                      socketListId,
-                      JSON.stringify({ ice: event.candidate })
-                    );
-                  }
-                };
-
-                //Wait for their video stream
-                connections[socketListId].onaddstream = function () {
-                  gotRemoteStream(event, socketListId);
-                };
-
-                //Add the local video stream
-                connections[socketListId].addStream(localStream);
-              }
-            });
-
-            //Create an offer to connect with your local description
-
-            if (count >= 2) {
-              connections[id].createOffer().then(function (description) {
-                connections[id]
-                  .setLocalDescription(description)
-                  .then(function () {
-                    // console.log(connections);
-                    socket.emit(
-                      "signal",
-                      id,
-                      JSON.stringify({ sdp: connections[id].localDescription })
-                    );
-                  })
-                  .catch((e) => console.log(e));
-              });
-            }
-          });
-        });
-      });
+      .then(socketHandler);
   } else {
-    // alert("Your browser does not support getUserMedia API");
+    alert("Your browser does not support getUserMedia API");
   }
 }
+
+const setVideoWidths = () => {
+  let totalUsers = document.getElementsByTagName("video").length;
+  if (totalUsers > 1) {
+    for (let index = 0; index < totalUsers; index++) {
+      document.getElementsByTagName("video")[index].style.width =
+        100 / totalUsers + "%";
+    }
+  }
+};
 
 function getUserMediaSuccess(stream) {
   localStream = stream;
   localVideo.srcObject = stream;
+
+  setVideoWidths();
+
+  initStreams();
 }
 
 function gotRemoteStream(event, id) {
@@ -148,9 +178,18 @@ function gotRemoteStream(event, id) {
   video.playsinline = true;
 
   div.appendChild(video);
+  div.classList.add("video-grid");
 
   const videoGrids = document.getElementById("video-grids");
   videoGrids.appendChild(div);
+
+  setVideoWidths();
+
+  if (screenSharing) {
+    setTimeout(() => {
+      replaceStreams(connections[id], screenStream);
+    }, 1000); // dont remove this timeout
+  }
 }
 
 function gotMessageFromServer(fromId, message) {
@@ -194,6 +233,55 @@ function gotMessageFromServer(fromId, message) {
   }
 }
 
+const sendmessage = (text) => {
+  if (event.key === "Enter" && text.value != "") {
+    socket.emit("messagesend", myname + " : " + text.value);
+    text.value = "";
+    main__chat_window.scrollTop = main__chat_window.scrollHeight;
+  }
+};
+
+const sendPostMessageToParent = (msgObj) => {
+  if (window.parent) {
+    window.parent.postMessage(msgObj, "*");
+  }
+};
+
+const endCall = () => {
+  sendPostMessageToParent({ eventType: "endCall" });
+  window.location.replace("/");
+};
+
+const endCallForAll = () => {
+  sendPostMessageToParent({ eventType: "endCallForAll" });
+  socket.emit("endCallForAll", "");
+  window.location.replace("/");
+};
+
+const visitNotesClick = () => {
+  sendPostMessageToParent({ eventType: "visitNotes" });
+};
+
+const initStreams = () => {
+  var element = document.getElementById("mute-icon");
+  var muteText = document.getElementById("muteText");
+  if (defaultConfigObj.startWithAudioMuted === "true") {
+    myVideoStream.getAudioTracks()[0].enabled = false;
+    element.classList.add("fa-microphone-slash");
+    element.classList.remove("fa-microphone");
+    muteText.innerHTML = "Unmute";
+  }
+
+  var element1 = document.getElementById("video-icon");
+  var videoText = document.getElementById("videoText");
+  if (defaultConfigObj.startWithVideoMuted === "true") {
+    myVideoStream.getVideoTracks()[0].enabled = false;
+    element1.classList.add("fa-video-slash");
+    element1.classList.remove("fa-video");
+    videoText.innerHTML = "Start Video";
+  }
+};
+
 const muteUnmute = () => {
   const enabled = localStream.getAudioTracks()[0].enabled;
   var element = document.getElementById("mute-icon");
@@ -235,3 +323,69 @@ const showchat = () => {
     chat.hidden = false;
   }
 };
+
+const invitebox = () => {
+  alert("invite clicked : coming soon");
+};
+
+function setScreenSharingStream(stream) {
+  localVideo.srcObject = stream;
+  localVideo.muted = true;
+  localVideo.play();
+}
+
+function stopScreenSharingStream() {
+  localVideo.srcObject = localStream;
+  localVideo.muted = false;
+  localVideo.play();
+}
+
+const replaceStreams = (peerObj, streamData) => {
+  let videoTrack = streamData.getVideoTracks()[0];
+  peerObj?.getSenders().map((sender) => {
+    if (sender.track.kind == videoTrack.kind) {
+      sender.replaceTrack(videoTrack);
+    }
+  });
+};
+
+function startScreenShare() {
+  if (screenSharing) {
+    stopScreenSharing();
+  }
+  const options = {
+    audio: true,
+    video: { displaySurface: "monitor" },
+  };
+  navigator.mediaDevices.getDisplayMedia(options).then((stream) => {
+    screenStream = stream;
+    setScreenSharingStream(stream);
+
+    let videoTrack = screenStream.getVideoTracks()[0];
+    videoTrack.onended = () => {
+      stopScreenSharing();
+    };
+
+    Object.keys(connections).forEach((item) => {
+      replaceStreams(connections[item], screenStream);
+    });
+
+    document.getElementById("screenShare").style.visibility = "hidden";
+    screenSharing = true;
+  });
+}
+
+function stopScreenSharing() {
+  if (!screenSharing) return;
+  stopScreenSharingStream();
+
+  Object.keys(connections).forEach((item) => {
+    replaceStreams(connections[item], localStream);
+  });
+
+  screenStream.getTracks().forEach(function (track) {
+    track.stop();
+  });
+  document.getElementById("screenShare").style.visibility = "visible";
+  screenSharing = false;
+}

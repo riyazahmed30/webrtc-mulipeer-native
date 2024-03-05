@@ -83,8 +83,13 @@ const socketHandler = () => {
         };
 
         //Wait for their video stream
-        connections[socketListId].onaddstream = function (event) {
-          gotRemoteStream(event, socketListId);
+        /*
+        connections[socketListId].onaddstream = (event) => {
+          // gotRemoteStream(event.stream, socketListId);
+        };
+        */
+        connections[socketListId].ontrack = (event) => {
+          gotRemoteStream(event.streams[0], socketListId);
         };
 
         //Add the local video stream
@@ -128,8 +133,6 @@ const socketHandler = () => {
 };
 
 function pageReady() {
-  localVideo = document.getElementById("localVideo");
-
   var constraints = {
     video: {
       width: { min: 320, ideal: 1280, max: 1280 },
@@ -158,23 +161,13 @@ const setVideoWidths = () => {
   }
 };
 
-function getUserMediaSuccess(stream) {
-  localStream = stream;
-  localVideo.srcObject = stream;
-
-  setVideoWidths();
-
-  initStreams();
-}
-
-function gotRemoteStream(event, id) {
-  var video = document.createElement("video"),
-    div = document.createElement("div");
+const videoDivHtml = (stream, id, video) => {
+  var div = document.createElement("div");
 
   video.setAttribute("data-socket", id);
-  video.srcObject = event.stream;
+  video.srcObject = stream;
   video.autoplay = true;
-  video.muted = true;
+  // video.muted = true;
   video.playsinline = true;
 
   div.appendChild(video);
@@ -184,6 +177,22 @@ function gotRemoteStream(event, id) {
   videoGrids.appendChild(div);
 
   setVideoWidths();
+};
+
+function getUserMediaSuccess(stream) {
+  localStream = stream;
+  localVideo = document.createElement("video");
+  videoDivHtml(stream, "", localVideo);
+
+  initStreams();
+}
+
+function gotRemoteStream(stream, id) {
+  var video = document.querySelector('[data-socket="' + id + '"]');
+  if (!video || (video && video.srcObject !== stream)) {
+    var videoElem = document.createElement("video");
+    videoDivHtml(stream, id, videoElem);
+  }
 
   if (screenSharing) {
     setTimeout(() => {

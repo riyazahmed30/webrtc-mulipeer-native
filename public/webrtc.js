@@ -62,8 +62,10 @@ const socketHandler = () => {
 
   socket.on("user-left", function (id) {
     var video = document.querySelector('[data-socket="' + id + '"]');
-    var parentDiv = video.parentElement;
-    video.parentElement.parentElement.removeChild(parentDiv);
+    if (video && video.parentElement) {
+      var parentDiv = video.parentElement;
+      video.parentElement.parentElement.removeChild(parentDiv);
+    }
   });
 
   socket.on("user-joined", function (id, clients) {

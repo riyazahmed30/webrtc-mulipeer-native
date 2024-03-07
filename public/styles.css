@@ -167,6 +167,17 @@ video {
   width: 100% !important;
 }
 
+.audioiconpeer {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  color: #fff;
+}
+
+.right {
+  text-align: right;
+}
+
 @keyframes animate {
   0% {
     background-position: 0% 100%;

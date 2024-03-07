@@ -128,7 +128,8 @@ const socketHandler = () => {
   socket.on("createMessage", (message, id) => {
     var ul = document.getElementById("messageadd");
     var li = document.createElement("li");
-    li.className = "message";
+    const isUserMsgClass = socketId === id ? "" : "right";
+    li.className = `message ${isUserMsgClass}`;
     let txt = message.name + " : " + message.content;
     li.appendChild(document.createTextNode(txt));
     ul.appendChild(li);

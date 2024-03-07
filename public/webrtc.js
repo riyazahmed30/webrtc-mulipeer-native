@@ -125,11 +125,12 @@ const socketHandler = () => {
     endCall();
   });
 
-  socket.on("createMessage", (message) => {
+  socket.on("createMessage", (message, id) => {
     var ul = document.getElementById("messageadd");
     var li = document.createElement("li");
     li.className = "message";
-    li.appendChild(document.createTextNode(message));
+    let txt = message.name + " : " + message.content;
+    li.appendChild(document.createTextNode(txt));
     ul.appendChild(li);
   });
 };
@@ -172,6 +173,12 @@ const videoDivHtml = (stream, id, video) => {
   // video.muted = true;
   video.playsinline = true;
 
+  /*
+  let newDiv = document.createElement("div");
+  newDiv.classList.add("audioiconpeer");
+  newDiv.innerHTML = '<i class="fas fa-microphone"></i>';
+  div.appendChild(newDiv);
+  */
   div.appendChild(video);
   div.classList.add("video-grid");
 
@@ -179,6 +186,17 @@ const videoDivHtml = (stream, id, video) => {
   videoGrids.appendChild(div);
 
   setVideoWidths();
+
+  /*
+  console.log(stream.getVideoTracks());
+  const track = stream.getVideoTracks()[0];
+  track.onmute = () => console.log("remote video muted");
+  track.onunmute = () => console.log("remote video unmuted");
+  console.log(stream.getAudioTracks());
+  const track1 = stream.getAudioTracks()[0];
+  track1.onmute = () => console.log("remote video1 muted");
+  track1.onunmute = () => console.log("remote video1 unmuted");
+  */
 };
 
 function getUserMediaSuccess(stream) {
@@ -246,7 +264,7 @@ function gotMessageFromServer(fromId, message) {
 
 const sendmessage = (text) => {
   if (event.key === "Enter" && text.value != "") {
-    socket.emit("messagesend", myname + " : " + text.value);
+    socket.emit("messagesend", { name: myname, content: text.value });
     text.value = "";
     main__chat_window.scrollTop = main__chat_window.scrollHeight;
   }

@@ -72,7 +72,7 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("messagesend", (message) => {
-      io.to(roomId).emit("createMessage", message);
+      io.to(roomId).emit("createMessage", message, socketId);
     });
   });
 });

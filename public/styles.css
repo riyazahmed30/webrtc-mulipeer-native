@@ -30,7 +30,7 @@ a:active {
   align-items: center;
   flex-wrap: wrap;
   overflow-y: auto;
-  background-color: yellow;
+  background-color: #292929;
 }
 
 h1 {
@@ -172,6 +172,7 @@ video {
   bottom: 10px;
   left: 20px;
   color: #fff;
+  background-color: #000;
 }
 
 .right {
@@ -182,6 +183,38 @@ video {
   position: absolute !important;
   bottom: 80px;
   left: 10px;
+}
+
+.videoOffDiv {
+  position: absolute;
+}
+
+.circle {
+  display: flex;
+  width: 120px;
+  height: 120px;
+  background-color: #353535;
+  border-radius: 50%;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.innercircle {
+  width: 45px;
+  height: 45px;
+  background-color: #fb8c00;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.text {
+  color: #ffffff;
 }
 
 @keyframes animate {

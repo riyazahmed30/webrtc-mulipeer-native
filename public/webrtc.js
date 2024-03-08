@@ -53,10 +53,32 @@ const alertDiv = (msg) => {
   const divElem = document.getElementById("alertDiv");
 
   const newDiv = document.createElement("div");
-  newDiv.innerHTML = `<div class="alert alert-secondary alert-dismissible fade show alertBox" role="alert">${msg} <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>`;
+  newDiv.innerHTML = `<div class="alert alert-secondary alert-dismissible fade show alertBox" role="alert">
+  ${msg} <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span></button></div>`;
   divElem.prepend(newDiv);
 
   $(".alert").alert();
+};
+
+const addMuteDiv = (isMuted, divElem) => {
+  if (isMuted) {
+    divElem.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+  } else {
+    divElem.innerHTML = "";
+  }
+};
+
+const addVideoOffDiv = (isMuted, divElem, username) => {
+  if (isMuted) {
+    let nameInitials = username ? username.match(/\b(\w)/g).join("") : "";
+    divElem.innerHTML = `<div class="circle">
+    <div class="innercircle">${nameInitials}</div>
+    <span class="text">${username}</span>
+    </div>`;
+  } else {
+    divElem.innerHTML = "";
+  }
 };
 
 const socketHandler = () => {
@@ -83,6 +105,15 @@ const socketHandler = () => {
   socket.on("user-joined", (id, clients, username) => {
     if (id !== socketId) {
       alertDiv(`${username} joined the meeting`);
+      setTimeout(() => {
+        const audioEnable = localStream.getAudioTracks()[0].enabled;
+        const videoEnable = localStream.getVideoTracks()[0].enabled;
+        socket.emit("message", { isMuted: !audioEnable });
+        socket.emit("message", { isVideoMuted: !videoEnable });
+        if (screenSharing) {
+          socket.emit("message", { isScreenShare: true });
+        }
+      }, 1000);
     }
 
     clients.forEach(function (socketListId) {
@@ -151,7 +182,7 @@ const socketHandler = () => {
     ul.appendChild(li);
   });
 
-  socket.on("broadcast-message", (id, message) => {
+  socket.on("broadcast-message", (id, message, username) => {
     if (message.hasOwnProperty("isMuted")) {
       let divElem;
       if (id === socketId) {
@@ -161,17 +192,18 @@ const socketHandler = () => {
       }
 
       if (divElem) {
-        if (message.isMuted) {
-          divElem.innerHTML = '<i class="fas fa-microphone-slash"></i>';
-        } else {
-          divElem.innerHTML = "";
-        }
+        addMuteDiv(message.isMuted, divElem);
       }
     } else if (message.hasOwnProperty("isVideoMuted")) {
-      if (message.isVideoMuted) {
-        console.log("video off", id);
+      let divElem;
+      if (id === socketId) {
+        divElem = document.querySelector('[data-videoOff="localAudio"]');
       } else {
-        console.log("video on", id);
+        divElem = document.querySelector('[data-videoOff="' + id + '"]');
+      }
+
+      if (divElem) {
+        addVideoOffDiv(message.isVideoMuted, divElem, username);
       }
     } else if (message.hasOwnProperty("isScreenShare")) {
       if (message.isScreenShare) {
@@ -224,10 +256,15 @@ const videoDivHtml = (stream, id, video) => {
   let newDiv = document.createElement("div");
   newDiv.classList.add("audioiconpeer");
   newDiv.setAttribute("data-audioIcon", id);
-  // newDiv.innerHTML = '<i class="fas fa-microphone"></i>';
   div.appendChild(newDiv);
 
   div.appendChild(video);
+
+  let videoOffDiv = document.createElement("div");
+  videoOffDiv.classList.add("videoOffDiv");
+  videoOffDiv.setAttribute("data-videoOff", id);
+  div.appendChild(videoOffDiv);
+
   div.classList.add("video-grid");
 
   const videoGrids = document.getElementById("video-grids");

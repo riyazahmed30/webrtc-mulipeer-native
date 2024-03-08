@@ -60,7 +60,7 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("message", function (data) {
-      io.to(roomId).emit("broadcast-message", socketId, data);
+      io.to(roomId).emit("broadcast-message", socketId, data, myname);
     });
 
     socket.on("disconnect", function () {

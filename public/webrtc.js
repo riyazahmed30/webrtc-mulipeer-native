@@ -134,6 +134,37 @@ const socketHandler = () => {
     li.appendChild(document.createTextNode(txt));
     ul.appendChild(li);
   });
+
+  socket.on("broadcast-message", (id, message) => {
+    if (message.hasOwnProperty("isMuted")) {
+      let divElem;
+      if (id === socketId) {
+        divElem = document.querySelector('[data-audioIcon="localAudio"]');
+      } else {
+        divElem = document.querySelector('[data-audioIcon="' + id + '"]');
+      }
+
+      if (divElem) {
+        if (message.isMuted) {
+          divElem.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        } else {
+          divElem.innerHTML = "";
+        }
+      }
+    } else if (message.hasOwnProperty("isVideoMuted")) {
+      if (message.isVideoMuted) {
+        console.log("video off", id);
+      } else {
+        console.log("video on", id);
+      }
+    } else if (message.hasOwnProperty("isScreenShare")) {
+      if (message.isScreenShare) {
+        console.log("screenshare started", id);
+      } else {
+        console.log("screenshare stopped", id);
+      }
+    }
+  });
 };
 
 function pageReady() {
@@ -174,12 +205,12 @@ const videoDivHtml = (stream, id, video) => {
   // video.muted = true;
   video.playsinline = true;
 
-  /*
   let newDiv = document.createElement("div");
   newDiv.classList.add("audioiconpeer");
-  newDiv.innerHTML = '<i class="fas fa-microphone"></i>';
+  newDiv.setAttribute("data-audioIcon", id);
+  // newDiv.innerHTML = '<i class="fas fa-microphone"></i>';
   div.appendChild(newDiv);
-  */
+
   div.appendChild(video);
   div.classList.add("video-grid");
 
@@ -187,23 +218,12 @@ const videoDivHtml = (stream, id, video) => {
   videoGrids.appendChild(div);
 
   setVideoWidths();
-
-  /*
-  console.log(stream.getVideoTracks());
-  const track = stream.getVideoTracks()[0];
-  track.onmute = () => console.log("remote video muted");
-  track.onunmute = () => console.log("remote video unmuted");
-  console.log(stream.getAudioTracks());
-  const track1 = stream.getAudioTracks()[0];
-  track1.onmute = () => console.log("remote video1 muted");
-  track1.onunmute = () => console.log("remote video1 unmuted");
-  */
 };
 
 function getUserMediaSuccess(stream) {
   localStream = stream;
   localVideo = document.createElement("video");
-  videoDivHtml(stream, "", localVideo);
+  videoDivHtml(stream, "localAudio", localVideo);
 
   initStreams();
 }
@@ -321,11 +341,13 @@ const muteUnmute = () => {
     element.classList.add("fa-microphone-slash");
     element.classList.remove("fa-microphone");
     muteText.innerHTML = "Unmute";
+    socket.emit("message", { isMuted: true });
   } else {
     localStream.getAudioTracks()[0].enabled = true;
     element.classList.add("fa-microphone");
     element.classList.remove("fa-microphone-slash");
     muteText.innerHTML = "Mute";
+    socket.emit("message", { isMuted: false });
   }
 };
 
@@ -338,11 +360,13 @@ const VideomuteUnmute = () => {
     element.classList.add("fa-video-slash");
     element.classList.remove("fa-video");
     videoText.innerHTML = "Start Video";
+    socket.emit("message", { isVideoMuted: true });
   } else {
     localStream.getVideoTracks()[0].enabled = true;
     element.classList.add("fa-video");
     element.classList.remove("fa-video-slash");
     videoText.innerHTML = "Stop Video";
+    socket.emit("message", { isVideoMuted: false });
   }
 };
 
@@ -402,6 +426,7 @@ function startScreenShare() {
 
     document.getElementById("screenShare").style.visibility = "hidden";
     screenSharing = true;
+    socket.emit("message", { isScreenShare: true });
   });
 }
 
@@ -418,4 +443,5 @@ function stopScreenSharing() {
   });
   document.getElementById("screenShare").style.visibility = "visible";
   screenSharing = false;
+  socket.emit("message", { isScreenShare: false });
 }

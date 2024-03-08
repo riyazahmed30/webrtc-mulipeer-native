@@ -49,6 +49,16 @@ window.onload = () => {
   });
 };
 
+const alertDiv = (msg) => {
+  const divElem = document.getElementById("alertDiv");
+
+  const newDiv = document.createElement("div");
+  newDiv.innerHTML = `<div class="alert alert-secondary alert-dismissible fade show alertBox" role="alert">${msg} <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>`;
+  divElem.prepend(newDiv);
+
+  $(".alert").alert();
+};
+
 const socketHandler = () => {
   socket = io(HOST_URL);
   socket.on("signal", gotMessageFromServer);
@@ -56,19 +66,25 @@ const socketHandler = () => {
   sendPostMessageToParent({ eventType: "userconnect" });
   socket.emit("join-room", roomName, myname);
 
-  socket.on("connect", function () {
+  socket.on("connect", () => {
     socketId = socket.id;
   });
 
-  socket.on("user-left", function (id) {
+  socket.on("user-left", (id, username) => {
     var video = document.querySelector('[data-socket="' + id + '"]');
     if (video && video.parentElement) {
       var parentDiv = video.parentElement;
       video.parentElement.parentElement.removeChild(parentDiv);
     }
+
+    alertDiv(`${username} left the meeting`);
   });
 
-  socket.on("user-joined", function (id, clients) {
+  socket.on("user-joined", (id, clients, username) => {
+    if (id !== socketId) {
+      alertDiv(`${username} joined the meeting`);
+    }
+
     clients.forEach(function (socketListId) {
       if (!connections[socketListId]) {
         connections[socketListId] = new RTCPeerConnection(peerConnectionConfig);

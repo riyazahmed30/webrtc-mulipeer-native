@@ -178,6 +178,12 @@ video {
   text-align: right;
 }
 
+.alertBox {
+  position: absolute !important;
+  bottom: 80px;
+  left: 10px;
+}
+
 @keyframes animate {
   0% {
     background-position: 0% 100%;

@@ -53,7 +53,7 @@ io.on("connection", async (socket) => {
 
     let roomSockets = await io.in(roomId).fetchSockets();
     roomSockets = roomSockets.map((v) => v.id);
-    io.to(roomId).emit("user-joined", socketId, roomSockets);
+    io.to(roomId).emit("user-joined", socketId, roomSockets, myname);
 
     socket.on("signal", (toId, message) => {
       io.to(toId).emit("signal", socketId, message);
@@ -64,7 +64,7 @@ io.on("connection", async (socket) => {
     });
 
     socket.on("disconnect", function () {
-      io.to(roomId).emit("user-left", socketId);
+      io.to(roomId).emit("user-left", socketId, myname);
     });
 
     socket.on("endCallForAll", () => {

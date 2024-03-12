@@ -63,29 +63,51 @@
         <div class="main_controls">
           <div class="main_controls_block mobileDiv"></div>
           <div class="main_controls_block mainCenterDiv">
-            <div class="main_controls_button" onclick="muteUnmute()">
+            <div
+              class="main_controls_button"
+              onclick="muteUnmute()"
+              title="Mute/Unute"
+            >
               <i class="fas fa-microphone" id="mute-icon"></i>
-              <span id="muteText">Mute</span>
+              <!--span id="muteText">Mute</span-->
+              <!--div class="caretIcon">
+                <div>
+                  <i style="color: #fff;" class="fa">&#xf150;</i>
+                </div>
+              </div-->
             </div>
-            <div class="main_controls_button" onclick="VideomuteUnmute()">
+            <div
+              class="main_controls_button"
+              onclick="VideomuteUnmute()"
+              title="Video On/Off"
+            >
               <i class="fas fa-video" id="video-icon"></i>
-              <span id="videoText">Stop Video</span>
+              <!--span id="videoText">Stop Video</span-->
             </div>
-            <div class="main_controls_button mobileDiv" onclick="showchat()">
+            <div
+              class="main_controls_button mobileDiv"
+              onclick="showchat()"
+              title="Chat"
+            >
               <i class="fas fa-comment-alt"></i>
-              <span>Chat</span>
+              <!--span>Chat</span-->
             </div>
-            <div class="main_controls_button mobileDiv" onclick="invitebox()">
+            <div
+              class="main_controls_button mobileDiv"
+              onclick="invitebox()"
+              title="Invite Participant"
+            >
               <i class="fas fa-user-plus"></i>
-              <span>Invite</span>
+              <!--span>Invite</span-->
             </div>
             <div
               class="main_controls_button mobileDiv"
               id="screenShare"
               onclick="startScreenShare()"
+              title="Screen Share"
             >
               <i class="fas fa-desktop"></i>
-              <span>Share</span>
+              <!--span>Share</span-->
             </div>
             <div class="btnControl mobileDiv1">
               <div class="btn-group">
@@ -94,9 +116,10 @@
                   data-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
+                  title="End Call"
                 >
                   <i class="fa fa-phone-square" aria-hidden="true"></i>
-                  <span>End Call</span>
+                  <!--span>End Call</span-->
                 </div>
                 <div class="dropdown-menu dropdown-menu-right">
                   <button
@@ -123,9 +146,10 @@
                   data-toggle="dropdown"
                   aria-haspopup="true"
                   aria-expanded="false"
+                  title="More"
                 >
                   <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
-                  <span>More</span>
+                  <!--span>More</span-->
                 </div>
                 <div class="dropdown-menu dropdown-menu-right moreIcons">
                   <button

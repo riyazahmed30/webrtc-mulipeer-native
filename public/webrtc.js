@@ -367,39 +367,39 @@ const visitNotesClick = () => {
 
 const initStreams = () => {
   var element = document.getElementById("mute-icon");
-  var muteText = document.getElementById("muteText");
+  // var muteText = document.getElementById("muteText");
   if (defaultConfigObj.startWithAudioMuted === "true") {
     myVideoStream.getAudioTracks()[0].enabled = false;
     element.classList.add("fa-microphone-slash");
     element.classList.remove("fa-microphone");
-    muteText.innerHTML = "Unmute";
+    // muteText.innerHTML = "Unmute";
   }
 
   var element1 = document.getElementById("video-icon");
-  var videoText = document.getElementById("videoText");
+  // var videoText = document.getElementById("videoText");
   if (defaultConfigObj.startWithVideoMuted === "true") {
     myVideoStream.getVideoTracks()[0].enabled = false;
     element1.classList.add("fa-video-slash");
     element1.classList.remove("fa-video");
-    videoText.innerHTML = "Start Video";
+    // videoText.innerHTML = "Start Video";
   }
 };
 
 const muteUnmute = () => {
   const enabled = localStream.getAudioTracks()[0].enabled;
   var element = document.getElementById("mute-icon");
-  var muteText = document.getElementById("muteText");
+  // var muteText = document.getElementById("muteText");
   if (enabled) {
     localStream.getAudioTracks()[0].enabled = false;
     element.classList.add("fa-microphone-slash");
     element.classList.remove("fa-microphone");
-    muteText.innerHTML = "Unmute";
+    // muteText.innerHTML = "Unmute";
     socket.emit("message", { isMuted: true });
   } else {
     localStream.getAudioTracks()[0].enabled = true;
     element.classList.add("fa-microphone");
     element.classList.remove("fa-microphone-slash");
-    muteText.innerHTML = "Mute";
+    // muteText.innerHTML = "Mute";
     socket.emit("message", { isMuted: false });
   }
 };
@@ -407,18 +407,18 @@ const muteUnmute = () => {
 const VideomuteUnmute = () => {
   const enabled = localStream.getVideoTracks()[0].enabled;
   var element = document.getElementById("video-icon");
-  var videoText = document.getElementById("videoText");
+  // var videoText = document.getElementById("videoText");
   if (enabled) {
     localStream.getVideoTracks()[0].enabled = false;
     element.classList.add("fa-video-slash");
     element.classList.remove("fa-video");
-    videoText.innerHTML = "Start Video";
+    // videoText.innerHTML = "Start Video";
     socket.emit("message", { isVideoMuted: true });
   } else {
     localStream.getVideoTracks()[0].enabled = true;
     element.classList.add("fa-video");
     element.classList.remove("fa-video-slash");
-    videoText.innerHTML = "Stop Video";
+    // videoText.innerHTML = "Stop Video";
     socket.emit("message", { isVideoMuted: false });
   }
 };
@@ -498,3 +498,20 @@ function stopScreenSharing() {
   screenSharing = false;
   socket.emit("message", { isScreenShare: false });
 }
+
+/*
+const getDevices = () => {
+  return new Promise(async (resolve, reject) => {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    // console.log(devices);
+    const videoDevices = devices.filter((d) => d.kind === "videoinput");
+    const audioOutputDevices = devices.filter((d) => d.kind === "audiooutput");
+    const audioInputDevices = devices.filter((d) => d.kind === "audioinput");
+    resolve({
+      videoDevices,
+      audioOutputDevices,
+      audioInputDevices,
+    });
+  });
+};
+*/

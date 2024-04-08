@@ -432,7 +432,7 @@ const showchat = () => {
 };
 
 const invitebox = () => {
-  alert("invite clicked : coming soon");
+  sendPostMessageToParent({ eventType: "invite" });
 };
 
 function setScreenSharingStream(stream) {
